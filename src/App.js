@@ -1,25 +1,31 @@
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, AuthContext } from './AuthContext';
+import Login from './Login';
+import Home from './Home';
 
-function App() {
+const ProtectedRoute = ({ element: Component }) => {
+  const { authenticated } = React.useContext(AuthContext);
+  console.log(authenticated);
+  if (authenticated === null) {
+    return <div>Loading...</div>;
+  }
+
+  return authenticated ? <Component /> : <Navigate to="/login" />;
+};
+
+const App = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/home" element={<ProtectedRoute element={Home} />} />
+          <Route path="/" element={<Navigate to="/home" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
-}
+};
 
 export default App;
